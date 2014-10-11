@@ -115,22 +115,23 @@
 	
 	//this calculates route to a place
 	function calcRoute(sLat, sLng, lat, lng) {
-		console.log(sLat);
-		console.log(sLng);
-		console.log(lat);
-		console.log(lng);
 		var start = new google.maps.LatLng(sLat, sLng);
 		var end = new google.maps.LatLng(lat, lng);
 		var request = {
 			origin:start,
 			destination:end,
-			travelMode: google.maps.TravelMode.DRIVING
+			travelMode: google.maps.TravelMode.DRIVING,
+			provideRouteAlternatives: true
 		};
 		directionsService.route(request, function(response, status) {
-			if (status == google.maps.DirectionsStatus.OK) {
+			if (status == google.maps.DirectionsStatus.OK) {			
 				directionsDisplay.setDirections(response);
 			}
+			var infowindow = new google.maps.InfoWindow({
+				content : 'This is the end'
+			});
 		});
+		
 	}
 	
 	// clear overlays function
@@ -197,11 +198,13 @@
 		
 		//creating the body of the function call
 		var a = "calcRoute(&apos;" + startLat + "&apos;,&apos;"+ startLng +"&apos;,&apos;"+ obj.geometry.location.k +"&apos;,&apos;"+ obj.geometry.location.B +"&apos;)";
+		console.log(obj);
 		
 	    // prepare info window
 	    var infowindow = new google.maps.InfoWindow({
 	        content: '<img src="' + obj.icon + '" /><font style="color:#000;">' + obj.name +
-	        '<br />Rating: ' + obj.rating + '<br />Vicinity: ' + obj.vicinity + '</font>' + "<h5><a onclick='" + a + "' href='javascript:;'>Directions</a></h5>"
+	        '<br />Rating: ' + obj.rating + '<br />Location: ' + obj.vicinity + '</font>' + 	
+			"<h5><a onclick='" + a + "' href='javascript:;'>Directions</a></h5>"
 	    });
 	 
 	    // add event handler to current marker
