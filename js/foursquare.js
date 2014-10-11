@@ -1,0 +1,14 @@
+var fsClientId = "TWJRHBWDDIR4OR0JPIG34YUZI1GPJDTXZEATKD15FTXZ4GHF";
+var fsClientSeccret = "FKXOPJN5TI5T1EDBMCMPC1ZCUZUVC1TEVMZM2KTZYCWXYPS1";
+
+var fsQuery = "https://api.foursquare.com/v2/venues/search?client_id=TWJRHBWDDIR4OR0JPIG34YUZI1GPJDTXZEATKD15FTXZ4GHF&client_secret= FKXOPJN5TI5T1EDBMCMPC1ZCUZUVC1TEVMZM2KTZYCWXYPS1&v=20130815&ll=12.957950,77.656114  &query=italian";
+
+var fsQuery1 = "https://api.foursquare.com/v2/venues/explore?v=20141010&ll=12.957950,77.656114&client_id=TWJRHBWDDIR4OR0JPIG34YUZI1GPJDTXZEATKD15FTXZ4GHF&client_secret= FKXOPJN5TI5T1EDBMCMPC1ZCUZUVC1TEVMZM2KTZYCWXYPS1";
+
+var fsResult;
+function fsCall(){
+	$.getJSON(fsQuery).done(function(result){
+	fsResult = result;
+});
+}
+
