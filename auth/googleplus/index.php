@@ -5,14 +5,15 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <title>25 labs Google+ API Demo</title>
+        <title>SpanIt :: Google+ Auth</title>
         <link rel='stylesheet' href='style.css' />
     </head>
 <body>
 <div id="bar">
 	<div class="top-area" >
-		<div class="logo" ><a href="http://25labs.com" ><img src="25-lab-logo.png" /></a></div>
-		<div class="link" ><a href="http://25labs.com/tutorial-implementing-google-api-using-oauth-2-0-in-php/" ><h4>Click here to read the tutorial</h4></a></div>
+	<div class="logo"><h1>SpanIt</h1></div>
+		<!--<div class="logo" ><a href="http://25labs.com" ><img src="25-lab-logo.png" /></a></div>-->
+		<!--<div class="link" ><a href="http://25labs.com/tutorial-implementing-google-api-using-oauth-2-0-in-php/" ><h4>Click here to read the tutorial</h4></a></div>-->
 		<div class="login" >
 		<?php if(isset($me) && isset($activities)) { ?>
 				<a href="?logout" ><h5>Logout</h5></a>
