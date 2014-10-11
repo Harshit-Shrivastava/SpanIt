@@ -1,0 +1,336 @@
+<!DOCTYPE>
+<html>
+<head>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="css/stylesheet.css" />
+	<style>
+      #map-canvas {
+        height: 91%;
+        margin-top: -18px;
+		margin-left:0px;
+		margin-right:0px;
+        padding: 0px;
+		width:100%;
+      }
+    </style>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" id="jquery"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+	<script type="text/javascript">
+	var infowindow = new google.maps.InfoWindow({
+		minWidth:200,
+		maxWidth:201
+	});
+	var markers = [];
+	var content = [];
+	var locations = [];
+	var gmarkers = [];
+	var directionsDisplay;
+	var directionsService = new google.maps.DirectionsService();
+	var map;
+	var startLat;
+	var startLng;
+	var fsResult;
+	
+	function initialize(position) {
+		directionsDisplay = new google.maps.DirectionsRenderer();
+
+		var mapOptions = {
+			zoom: 12,
+			center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+		};
+		
+		startLat = position.coords.latitude;
+		startLng = position.coords.longitude;
+		
+		map = new google.maps.Map(document.getElementById('map-canvas'),
+			mapOptions);
+			
+		directionsDisplay.setMap(map);
+
+		var marker = new google.maps.Marker({
+			position: map.getCenter(),	//position of marker
+			map: map,	//map reference
+			animation : google.maps.Animation.BOUNCE,	//bouncing animation to marker
+			draggable:true,	//make marker draggable
+			title: 'Click to zoom'	//tooltip on marker
+		});
+		
+		//main calling function that takes care of fetching and plotting data on the map
+		fsCall();
+
+		//adding a circle to the map, starts here
+		var circle;
+		var circleOptions={
+			strokeColor:'#4C9BD6',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#4C9BD6',
+			fillOpacity: 0.35,
+			map: map,
+			center:new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+			radius:5000,
+			draggable: true,
+			geodesic: true,
+			editable:true
+		};
+		circle = new google.maps.Circle(circleOptions);
+		
+		//adding a circle to the map, ends here
+
+		google.maps.event.addListener(infowindow, 'closeclick', function() {
+		// 3 seconds after the center of the map has changed, pan back to the
+		// marker.
+			window.setTimeout(function() {
+				map.panTo(marker.getPosition());
+			}, 500);
+		});
+		
+
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.setContent("You are here");
+			infowindow.open(map, marker);
+		});
+		
+		google.maps.event.addListener(circle, 'radius_changed', function() {
+			//TODO : Make a new request for places and mark them here
+			console.log(circle.getRadius());
+			console.log(circle.center.B);
+		});
+		google.maps.event.addListener(circle, 'center_changed', function() {
+			//TODO : Make a new request for places and mark them here
+			var marker = new google.maps.Marker({
+				position: newPos,
+				map: map,
+				title: 'Click to zoom'
+			});
+		});
+	}
+	
+	//gets the current location to plot on the map
+	function getLocation(){
+		return navigator.geolocation.getCurrentPosition(initialize);
+	}
+	
+	//this calculates route to a place
+	function calcRoute(sLat, sLng, lat, lng) {
+		console.log(sLat);
+		console.log(sLng);
+		console.log(lat);
+		console.log(lng);
+		var start = new google.maps.LatLng(sLat, sLng);
+		var end = new google.maps.LatLng(lat, lng);
+		var request = {
+			origin:start,
+			destination:end,
+			travelMode: google.maps.TravelMode.DRIVING
+		};
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+				directionsDisplay.setDirections(response);
+			}
+		});
+	}
+	
+	// clear overlays function
+	function clearOverlays() {
+	    if (markers) {
+	        for (i in markers) {
+	            markers[i].setMap(null);
+	        }
+	        markers = [];
+	        infos = [];
+	    }
+	}
+	 
+	// clear infos function
+	function clearInfos() {
+	    if (infos) {
+	        for (i in infos) {
+	            if (infos[i].getMap()) {
+	                infos[i].close();
+	            }
+	        }
+	    }
+	}
+	
+	//this function fetches all the data from Google's places API
+	function fsCall(){
+	var cur_location = new google.maps.LatLng(startLat,startLng);
+		var request = {
+				location: cur_location,
+				radius: 500,
+			};
+			// send request
+			service = new google.maps.places.PlacesService(map);
+			service.search(request, createMarkers);
+	}
+
+		// create markers (from 'findPlaces' function)
+	function createMarkers(results, status) {
+		fsResult = results;
+	    if (status == google.maps.places.PlacesServiceStatus.OK) {
+	 
+	        // if we have found something - clear map (overlays)
+	        clearOverlays();
+	 
+	        // and create new markers by search result
+	        for (var i = 0; i < results.length; i++) {
+	            createMarker(results[i]);
+	        }
+	    } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+	        alert('Sorry, nothing is found');
+	    }
+	}
+	 
+	// creare single marker function
+	function createMarker(obj) {
+	 
+	    // prepare new Marker object
+	    var mark = new google.maps.Marker({
+	        position: obj.geometry.location,
+	        map: map,
+	        title: obj.name
+	    });
+	    markers.push(mark);
+	 
+	    // prepare info window
+	    var infowindow = new google.maps.InfoWindow({
+	        content: '<img src="' + obj.icon + '" /><font style="color:#000;">' + obj.name +
+	        '<br />Rating: ' + obj.rating + '<br />Vicinity: ' + obj.vicinity + '</font>'
+	    });
+	 
+	    // add event handler to current marker
+	    google.maps.event.addListener(mark, 'click', function() {
+	        clearInfos();
+	        infowindow.open(map,mark);
+	    });
+	    infos.push(infowindow);
+	}
+
+
+	google.maps.event.addDomListener(window, 'load', getLocation);
+	</script>
+<head>
+<body>
+	<!--Header starts here-->
+
+	<nav class="navbar navbar-default top-nav" role="navigation">
+	  <div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar" style="background-color:white;"></span>
+				<span class="icon-bar" style="background-color:white;"></span>
+				<span class="icon-bar" style="background-color:white;"></span>
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#search-bar">
+				<span class="glyphicon glyphicon-search"></span>  
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#find-nearby">
+				<span class="glyphicon glyphicon-screenshot"></span>
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#discover">
+				<span class="glyphicon glyphicon-globe"></span>
+			</button>
+			<a class="navbar-brand" href="#"><font color="white"><b><i> SpanIt</i></b></font></a>
+		</div>
+		<div id="search-option" class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="search-bar" style="background-color:white">
+				<form class="navbar-form navbar-left col-sm-12 col-xs-12" role="search">
+					<div class="row">
+						<div class="col-xs-9 col-sm-9">
+							<input type="text" class="form-control" placeholder="Search places..."></input>
+						</div>
+						<button type="submit" class="btn btn-success col-xs-3 col-sm-3">Search</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="find-nearby" style="background-color:white; z-index:1;">
+				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
+					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="discover" style="background-color:white; z-index:1;">
+				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
+					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+				</ul>
+			</div>
+		</div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-globe"></span>  Discover <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-screenshot"></span>  Find Nearby <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+					</ul>
+				</li>
+			</ul>
+			<form class="navbar-form navbar-left col-sm-12 col-xs-12" role="search">
+				<div class="row">
+					<div class="col-xs-9 col-sm-9">
+						<input type="text" class="form-control" placeholder="Search places..."></input>
+					</div>
+					<button type="submit" class="btn btn-default col-xs-3 col-sm-3">Search</button>
+				</div>
+			</form>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="#">Me</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#">Search Radius</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Mode of travel</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Attach Accounts</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	<!--Header ends here-->
+	<!--Content starts here-->
+	<div id="map-canvas" class="container"></div>
+	<!--Content ends here-->
+	<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
