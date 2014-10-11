@@ -1,0 +1,177 @@
+<!Doctype html>
+<html>
+<head>
+	<title>SpanIt :: Home</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="css/stylesheet.css" />
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" id="jquery"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+
+	<script type="text/javascript">
+	function rec(id_no){
+		
+	}
+	</script>
+</head>
+
+<body>
+	<!--Header starts here-->
+
+	<nav class="navbar navbar-default top-nav" role="navigation">
+	  <div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar" style="background-color:white;"></span>
+				<span class="icon-bar" style="background-color:white;"></span>
+				<span class="icon-bar" style="background-color:white;"></span>
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#search-bar">
+				<span class="glyphicon glyphicon-search"></span>  
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#find-nearby">
+				<span class="glyphicon glyphicon-screenshot"></span>
+			</button>
+			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#discover">
+				<span class="glyphicon glyphicon-globe"></span>
+			</button>
+			<a class="navbar-brand" href="index.html"><font color="white"><b><i> SpanIt</i></b></font></a>
+		</div>
+		<div id="search-option" class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="search-bar" style="background-color:white">
+				<form class="navbar-form navbar-left col-sm-12 col-xs-12" role="search">
+					<div class="row">
+						<div class="col-xs-9 col-sm-9">
+							<input type="text" class="form-control" placeholder="Search places..."></input>
+						</div>
+						<button type="submit" class="btn btn-success col-xs-3 col-sm-3">Search</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="find-nearby" style="background-color:white; z-index:1;">
+				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
+					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="hidden-sm hidden-md hidden-lg">
+			<div class="collapse navbar-collapse no-border" id="discover" style="background-color:white; z-index:1;">
+				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
+					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+					<li class="divider"></li>
+					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+				</ul>
+			</div>
+		</div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-globe"></span>  Discover <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-screenshot"></span>  Find Nearby <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+						<li class="divider"></li>
+						<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+					</ul>
+				</li>
+			</ul>
+			<form class="navbar-form navbar-left col-sm-12 col-xs-12" role="search">
+				<div class="row">
+					<div class="col-xs-9 col-sm-9">
+						<input type="text" class="form-control" placeholder="Search places..."></input>
+					</div>
+					<button type="submit" class="btn btn-default col-xs-3 col-sm-3">Search</button>
+				</div>
+			</form>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="#">Me</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#">Search Radius</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Mode of travel</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Attach Accounts</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	<!--Header ends here-->
+
+	<div ><center><h1>What u wana do?</h1></center></div>
+
+	
+
+	<div class="radio">
+		<label>
+		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(1);">
+		Go for movie
+		</button>
+		</label>
+	</div>
+
+	<div class="radio">
+		<label>
+		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(2);">
+		Some food
+		</button>
+		</label>
+	</div>
+
+	<div class="radio">
+		<label>
+		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(3);">
+		Coffee shop
+		</button>
+		</label>
+	</div>
+	
+	<div class="radio">
+		<label>
+		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(4);">
+		Go for shopping
+		</button>
+		</label>
+	</div>
+
+	<div id="list">
+		<p>testing...</p>
+	</div>
+
+	<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
