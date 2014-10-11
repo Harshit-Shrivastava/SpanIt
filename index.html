@@ -160,14 +160,14 @@
 	var cur_location = new google.maps.LatLng(startLat,startLng);
 		var request = {
 				location: cur_location,
-				radius: 500,
+				radius: 5000,
 			};
 			// send request
 			service = new google.maps.places.PlacesService(map);
 			service.search(request, createMarkers);
 	}
 
-		// create markers (from 'findPlaces' function)
+	// create markers (from 'findPlaces' function)
 	function createMarkers(results, status) {
 		fsResult = results;
 	    if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -180,7 +180,7 @@
 	            createMarker(results[i]);
 	        }
 	    } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-	        alert('Sorry, nothing is found');
+	        alert('Sorry, nothing found');
 	    }
 	}
 	 
@@ -194,11 +194,14 @@
 	        title: obj.name
 	    });
 	    markers.push(mark);
-	 
+		
+		//creating the body of the function call
+		var a = "calcRoute(&apos;" + startLat + "&apos;,&apos;"+ startLng +"&apos;,&apos;"+ obj.geometry.location.k +"&apos;,&apos;"+ obj.geometry.location.B +"&apos;)";
+		
 	    // prepare info window
 	    var infowindow = new google.maps.InfoWindow({
 	        content: '<img src="' + obj.icon + '" /><font style="color:#000;">' + obj.name +
-	        '<br />Rating: ' + obj.rating + '<br />Vicinity: ' + obj.vicinity + '</font>'
+	        '<br />Rating: ' + obj.rating + '<br />Vicinity: ' + obj.vicinity + '</font>' + "<h5><a onclick='" + a + "' href='javascript:;'>Directions</a></h5>"
 	    });
 	 
 	    // add event handler to current marker
@@ -235,7 +238,7 @@
 			<button type="button" class="navbar-toggle no-border" data-toggle="collapse" data-target="#discover">
 				<span class="glyphicon glyphicon-globe"></span>
 			</button>
-			<a class="navbar-brand" href="#"><font color="white"><b><i> SpanIt</i></b></font></a>
+			<a class="navbar-brand" href="index.html"><font color="white"><b><i> SpanIt</i></b></font></a>
 		</div>
 		<div id="search-option" class="hidden-sm hidden-md hidden-lg">
 			<div class="collapse navbar-collapse no-border" id="search-bar" style="background-color:white">
