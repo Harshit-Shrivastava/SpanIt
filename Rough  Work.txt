@@ -1,0 +1,2 @@
+Places request
+https://maps.googleapis.com/maps/api/place/textsearch/xml?query=location=&key=AIzaSyCA2a9Okh-ptTUUz2asKCv4S7GeEQ3L6V4
