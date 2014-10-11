@@ -10,7 +10,7 @@ $client->setApplicationName("Google+ PHP Starter Application");
 //*********** Replace with Your API Credentials **************
 $client->setClientId('665757994116-tlme8vqed0njqngoeq11har8h5o982r2.apps.googleusercontent.com');
 $client->setClientSecret('be0CHU2gepIsIywEtic-sXkH');
-$client->setRedirectUri('http://localhost/googleplus');
+$client->setRedirectUri('http://localhost/SnapIt/auth/googleplus');
 $client->setDeveloperKey('AIzaSyAqYUYfL0tsqYf5fQs8u0z7xHamCbmCNAU');
 //************************************************************
  
