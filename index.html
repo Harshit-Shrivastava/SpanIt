@@ -33,6 +33,8 @@
 	var startLng;
 	var fsResult;
 	var directionResponse;
+	var radius_val = 5000;
+	var types_selected = [];
 	
 	function initialize(position) {
 		directionsDisplay = new google.maps.DirectionsRenderer();
@@ -71,7 +73,7 @@
 			fillOpacity: 0.35,
 			map: map,
 			center:new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
-			radius:5000,
+			radius:radius_val,
 			draggable: true,
 			geodesic: true,
 			editable:true
@@ -178,14 +180,15 @@
 	
 	//this function fetches all the data from Google's places API
 	function fsCall(){
-	var cur_location = new google.maps.LatLng(startLat,startLng);
+		var cur_location = new google.maps.LatLng(startLat,startLng);
 		var request = {
 				location: cur_location,
-				radius: 5000,
+				radius: radius_val,
+				types : types_selected
 			};
-			// send request
-			service = new google.maps.places.PlacesService(map);
-			service.search(request, createMarkers);
+		// send request
+		service = new google.maps.places.PlacesService(map);
+		service.search(request, createMarkers);
 	}
 
 	// create markers (from 'findPlaces' function)
@@ -291,15 +294,15 @@
 		<div class="hidden-sm hidden-md hidden-lg">
 			<div class="collapse navbar-collapse no-border" id="find-nearby" style="background-color:white; z-index:1;">
 				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
-					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+					<li><a onclick='restaurants_selected();' href='javascript:;'><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+					<li><a onclick='coffeeshop_selected();' href='javascript:;'><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+					<li><a onclick='bars_selected();' href='javascript:;'><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+					<li><a onclick='sports_selected();' href='javascript:;'><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+					<li><a onclick='shopping_selected();' href='javascript:;'><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
 				</ul>
 			</div>
 		</div>
@@ -330,15 +333,15 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-screenshot"></span>  Find Nearby <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
+						<li><a onclick='restaurants_selected();' href='javascript:;'><span class="glyphicon glyphicon-cutlery"></span> Restaurants</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
+						<li><a onclick='coffeeshop_selected();' href='javascript:;'><span class="glyphicon glyphicon-glass"></span> Coffee Shops</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
+						<li><a onclick='bars_selected();' href='javascript:;'><span class="glyphicon glyphicon-filter"></span> Bars</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
+						<li><a onclick='sports_selected();' href='javascript:;'><span class="glyphicon glyphicon-picture"></span> Sports</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
+						<li><a onclick='shopping_selected();' href='javascript:;'><span class="glyphicon glyphicon-shopping-cart"></span> Shopping</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -376,6 +379,28 @@
 	</div>
 	<div id="map-canvas" class="container"></div>
 	<!--Content ends here-->
+	<script type="text/javascript">
+		function restaurants_selected(){
+			types_selected = ['restaurant'];
+			fsCall();
+		}
+		function coffeeshop_selected(){
+			types_selected = ['cafe'];
+			fsCall();
+		}
+		function bars_selected(){
+			types_selected = ['bar'];
+			fsCall();
+		}
+		function sports_selected(){
+			types_selected = ['bowling_alley'];
+			fsCall();
+		}
+		function shopping_selected(){
+			types_selected = ['shopping_mall'];
+			fsCall();
+		}
+	</script>
 	<script src="js/bootstrap.min.js"></script>
 </body>
 </html>
