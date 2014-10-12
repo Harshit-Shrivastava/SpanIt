@@ -17,6 +17,7 @@
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" id="jquery"></script>
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+	<script type="text/javascript" src="js/carbon_data.js"></script>
 	<script type="text/javascript">
 	var infowindow = new google.maps.InfoWindow({
 		minWidth:200,
@@ -37,6 +38,7 @@
 	var types_selected = [];
 	var travel_mode = 'DRIVING';
 	var keyword = '';
+	var carbon_data = [];
 	
 	function initialize(position) {
 		directionsDisplay = new google.maps.DirectionsRenderer();
@@ -147,9 +149,9 @@
 				}
 				if(a)
 				{
-					a = a + 'Carbon Footprint: ' + (response.routes[0].legs[0].distance.value * 175)/1000000 + ' kg/tonne ';
+					var carbprint = calculate_footprint(response.routes[0].legs[0].distance.value);
+					a = a + 'Carbon Footprint: ' + carbprint + ' kg/tonne ';
 					var b = "<a onclick='navigateMap();' href = 'javascript:;'>Navigate</a>";
-					console.log(b);
 					a = a + b;
 					document.getElementById('result_container').innerHTML = a;
 					document.getElementById("result_container").className = "result_bar_shown";
@@ -258,8 +260,63 @@
 			}
 			document.getElementById('navigate').innerHTML = a;
 			$('#map-canvas').hide(1000);
+			$('#carbon_print_container').hide(1000);
+			$('#graph-container').hide(1000);
 			$('#navigate').show(1000);
 		}
+	}
+	
+	function compute_carbon_footprint(){
+		var a = "<br/><br/><b><u>Carbon Footprint Analytics</u></b><hr/>";
+		a = a + 'Your total carbon footprint is: ' + localStorage.getItem('carbon_footprint') + ' kg/tonne<br/><br/>';
+		a = a + 'Breakdown of carbon footprint data:-<br/><br/>'
+		var b = JSON.parse(localStorage.getItem('carbon_data'));
+		console.log(b);
+		var temp = '';
+		for(var i = 0; i<b.length; i++){
+			temp = temp + b[i].data + " kg/tonne<br/>";
+		}		
+		a = a + temp;
+		document.getElementById('carbon_print_container').innerHTML = a;
+		//console.log(temp);
+		$('#map-canvas').hide(1000);
+		$('#navigate').hide(1000);
+		$('#carbon_print_container').show(1000);
+		var xdata = [];
+		var ydata = [];
+		for(var i=1; i<= b.length; i++){
+			xdata.push(i);
+		}
+		for(var i = 0; i <b.length; i++){
+			ydata.push(b[i].data);
+		}		
+		$('#carbon_print_container').highcharts({
+			title: {
+				text: 'Carbon Footprint History',
+				x: -20 //center
+			},
+			xAxis: {
+				categories: xdata
+			},
+			yAxis: {
+				title: {
+					text: 'Carbon Footprint (kg/tonne)'
+				},
+			},
+			tooltip: {
+				valueSuffix: 'kg/tonne'
+			},
+			legend: {
+				layout: 'vertical',
+				align: 'right',
+				verticalAlign: 'middle',
+				borderWidth: 0
+			},
+			series: [{
+				name: 'You',
+				data: ydata
+			}]
+		});
 	}
 
 	google.maps.event.addDomListener(window, 'load', getLocation);
@@ -319,7 +376,7 @@
 		<div class="hidden-sm hidden-md hidden-lg">
 			<div class="collapse navbar-collapse no-border" id="discover" style="background-color:white; z-index:1;">
 				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
-					<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+					<li><a onclick="compute_carbon_footprint();" href="javascript:;"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
 					<li class="divider"></li>
 					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
 					<li class="divider"></li>
@@ -333,7 +390,7 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-globe"></span>  Discover <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
+						<li><a onclick="compute_carbon_footprint();" href="javascript:;"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
 						<li class="divider"></li>
 						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
 						<li class="divider"></li>
@@ -379,13 +436,13 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Travel Mode <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#">Driving</a></li>
+						<li><a onclick="travel_mode_selected('DRIVING');" href="javascript:;">Driving</a></li>
 						<li class="divider"></li>
-						<li><a href="#">Walking</a></li>
+						<li><a onclick="travel_mode_selected('WALKING');" href="javascript:;">Walking</a></li>
 						<li class="divider"></li>
-						<li><a href="#">Bicycling</a></li>
+						<li><a onclick="travel_mode_selected('BICYCLING');" href="javascript:;">Bicycling</a></li>
 						<li class="divider"></li>
-						<li><a href="#">Transit</a></li>
+						<li><a onclick="travel_mode_selected('TRANSIT');" href="javascript:;">Transit</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -398,6 +455,12 @@
 		<div class="container" >
 			<div id="result_container" class="result_bar_hidden" style=" min-height:50px !important;overflow:hidden;"></div>
 			<div id = "navigate" class="col-md-12 col-xs-12 col-sm-12 navigate"></div>
+		</div>
+	</div>
+	<div class="col-md-12 col-xs-12 col-sm-12" id="#carbon-print-bar" style="background-color:white !important;">
+		<div class="container" >
+			<div id="graph-container" style="min-width: 310px; height: 300px; margin: 0 auto; display:none;"></div>
+			<div id = "carbon_print_container" class="col-md-12 col-xs-12 col-sm-12 navigate"></div>
 		</div>
 	</div>
 	<div id="map-canvas" class="container"></div>
@@ -442,7 +505,46 @@
 			radius_val = a * 1000;
 			fsCall();
 		}
+		function travel_mode_selected(mode){
+			travel_mode = mode;
+			fsCall();
+		}
+		function calculate_footprint(distance){
+		var carbon_data = carbon_data || [];
+			if(travel_mode == 'DRIVING' || travel_mode == 'TRANSIT'){
+				if(localStorage["carbon_footprint"] && localStorage["carbon_data"]){
+					carbon_data = JSON.parse(localStorage.getItem("carbon_data"));
+					//console.log(carbon_data.length);
+					var temp = (distance * carbonData.passenger.car)/1000;
+					var carbon_print_data={
+						'data' : temp
+					};
+					carbon_data.push(carbon_print_data);
+					//localStorage.addItem("carbon_data",JSON.stringify(carbon_data));
+					localStorage.setItem('carbon_data', JSON.stringify(carbon_data));
+					var a = localStorage.getItem("carbon_footprint");
+					a = Math.round(a) + (distance * carbonData.passenger.car)/1000;
+					localStorage.setItem("carbon_footprint",a);
+				}
+				else{
+					var carbon_print_data = {
+						'data' : (distance * carbonData.passenger.car)/1000
+					};
+					carbon_data.push(carbon_print_data);
+					localStorage.setItem("carbon_data",JSON.stringify(carbon_data));
+					localStorage.setItem("carbon_footprint",(distance * carbonData.passenger.car)/1000);
+				}
+				//console.log(localStorage.getItem("carbon_footprint"));
+				//console.log(localStorage.getItem("carbon_data"))
+				return (distance * carbonData.passenger.car)/1000;
+			}
+			else{
+				return 0;
+			}
+		}
 	</script>
 	<script src="js/bootstrap.min.js"></script>
+	<script src="js/highcharts.js"></script>
+	<script src="js/exporting.js"></script>
 </body>
 </html>
