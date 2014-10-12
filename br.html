@@ -10,8 +10,257 @@
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
 
 	<script type="text/javascript">
-	function rec(id_no){
+
+	var locations = [];
+	var map;
+	var infowindow;
+	var startLat;
+	var startLng;
+	var fsResult;
+	var directionResponse;
+	var radius_val = 5000;
+	var types_selected = [];
+	
+	function initialize(position) {
+		directionsDisplay = new google.maps.DirectionsRenderer();
+
+		var mapOptions = {
+			zoom: 12,
+			center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+		};
 		
+		startLat = position.coords.latitude;
+		startLng = position.coords.longitude;
+		
+		map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+			
+		directionsDisplay.setMap(map);
+
+		var marker = new google.maps.Marker({
+			position: map.getCenter(),	//position of marker
+			map: map,	//map reference
+			animation : google.maps.Animation.BOUNCE,	//bouncing animation to marker
+			draggable:true,	//make marker draggable
+			title: 'Click to zoom'	//tooltip on marker
+		});
+		
+		//main calling function that takes care of fetching and plotting data on the map
+		fsCall();
+
+		//adding a circle to the map, starts here
+		var circle;
+		var circleOptions={
+			strokeColor:'#4C9BD6',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#4C9BD6',
+			fillOpacity: 0.35,
+			map: map,
+			center:new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+			radius:radius_val,
+			draggable: true,
+			geodesic: true,
+			editable:true
+		};
+		circle = new google.maps.Circle(circleOptions);
+		
+		//adding a circle to the map, ends here
+
+		google.maps.event.addListener(infowindow, 'closeclick', function() {
+		// 3 seconds after the center of the map has changed, pan back to the
+		// marker.
+			window.setTimeout(function() {
+				map.panTo(marker.getPosition());
+			}, 500);
+		});
+		
+
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.setContent("You are here");
+			infowindow.open(map, marker);
+		});
+		
+		google.maps.event.addListener(circle, 'radius_changed', function() {
+			//TODO : Make a new request for places and mark them here
+			console.log(circle.getRadius());
+			console.log(circle.center.B);
+		});
+		google.maps.event.addListener(circle, 'center_changed', function() {
+			//TODO : Make a new request for places and mark them here
+			var marker = new google.maps.Marker({
+				position: newPos,
+				map: map,
+				title: 'Click to zoom'
+			});
+		});
+	}
+	
+	//gets the current location to plot on the map
+	function getLocation(){
+		return navigator.geolocation.getCurrentPosition(initialize);
+	}
+	
+	//this calculates route to a place
+	function calcRoute(sLat, sLng, lat, lng) {
+		var start = new google.maps.LatLng(sLat, sLng);
+		var end = new google.maps.LatLng(lat, lng);
+		var request = {
+			origin:start,
+			destination:end,
+			travelMode: google.maps.TravelMode.DRIVING,
+			provideRouteAlternatives: true
+		};
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {			
+				directionResponse = response;
+				directionsDisplay.setDirections(response);
+				
+				var a = '';
+				//console.log(response);
+				if(response.routes[0].legs[0].distance.text)
+				{
+					a = a + 'Distance: ' +  response.routes[0].legs[0].distance.text + ' | ';
+				}
+				if(response.routes[0].legs[0].duration.text)
+				{
+					a = a + 'Time to reach: ' + response.routes[0].legs[0].duration.text + ' | ';
+				}
+				if(a)
+				{
+					a = a + 'Carbon Footprint: ' + (response.routes[0].legs[0].distance.value * 175)/1000000 + ' kg/tonne ';
+					var b = "<a onclick='navigateMap();' href = 'javascript:;'>Navigate</a>";
+					console.log(b);
+					a = a + b;
+					document.getElementById('result_container').innerHTML = a;
+					document.getElementById("result_container").className = "result_bar_shown";
+				}
+				
+			}
+		});
+		
+	}
+	
+	// clear overlays function
+	function clearOverlays() {
+	    if (markers) {
+	        for (i in markers) {
+	            markers[i].setMap(null);
+	        }
+	        markers = [];
+	        infos = [];
+	    }
+	}
+	 
+	// clear infos function
+	function clearInfos() {
+	    if (infos) {
+	        for (i in infos) {
+	            if (infos[i].getMap()) {
+	                infos[i].close();
+	            }
+	        }
+	    }
+	}
+	
+	//this function fetches all the data from Google's places API
+	function fsCall(){
+		var cur_location = new google.maps.LatLng(startLat,startLng);
+		var request = {
+				location: cur_location,
+				radius: radius_val,
+				types : types_selected
+			};
+		// send request
+		service = new google.maps.places.PlacesService(map);
+		service.search(request, createMarkers);
+	}
+
+	// create markers (from 'findPlaces' function)
+	function createMarkers(results, status) {
+		fsResult = results;
+	    /*if (status == google.maps.places.PlacesServiceStatus.OK) {
+	 
+	        // if we have found something - clear map (overlays)
+	        clearOverlays();
+	 
+	        // and create new markers by search result
+	        for (var i = 0; i < results.length; i++) {
+	            createMarker(results[i]);
+	        }
+	    } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+	        alert('Sorry, nothing found');
+	    }*/
+
+	    //console.log(fsResult);
+	}
+	 
+	// creare single marker function
+	function createMarker(obj) {
+	 
+	    // prepare new Marker object
+	    var mark = new google.maps.Marker({
+	        position: obj.geometry.location,
+	        map: map,
+	        title: obj.name
+	    });
+	    markers.push(mark);
+		
+		//creating the body of the function call
+		var a = "calcRoute(&apos;" + startLat + "&apos;,&apos;"+ startLng +"&apos;,&apos;"+ obj.geometry.location.k +"&apos;,&apos;"+ obj.geometry.location.B +"&apos;)";
+		
+	    // prepare info window
+	    var infowindow = new google.maps.InfoWindow({
+	        content: '<img src="' + obj.icon + '" /><font style="color:#000;">' + obj.name +
+	        '<br />Rating: ' + obj.rating + '<br />Location: ' + obj.vicinity + '</font>' + 	
+			"<h5><a onclick='" + a + "' href='javascript:;'>Directions</a></h5>"
+	    });
+	 
+	    // add event handler to current marker
+	    google.maps.event.addListener(mark, 'click', function() {
+	        clearInfos();
+	        infowindow.open(map,mark);
+	    });
+	    infos.push(infowindow);
+	}
+	
+	function navigateMap()
+	{
+		if(directionResponse){
+			console.log('it was here');
+			var a = '<br/><b><u>Navigation Steps:- </b></u><hr/><br/>';
+			for(var i =0; i < directionResponse.routes[0].legs[0].steps.length; i++)
+			{
+				a = a + directionResponse.routes[0].legs[0].steps[i].instructions + '<hr/>';
+			}
+			document.getElementById('navigate').innerHTML = a;
+			$('#map-canvas').hide(1000);
+			$('#navigate').show(1000);
+		}
+	}
+
+	google.maps.event.addDomListener(window, 'load', getLocation);
+
+
+
+	function rec(id_no){
+		var a = document.getElementById('selected_option').value;
+		console.log(a);
+		if(id_no == 1){
+			/*types_selected = ['movie_theater'];
+			fsCall();
+			console.log(fsResult);*/
+			alert("ksdhfjksd");
+		}else if(id_no == 2){
+			//types_selected = ['restaurant'];
+			//fsCall();
+			alert("Get some food!!");
+		}else if(id_no == 3){
+			types_selected = ['cafe'];
+			fsCall();
+		}else{
+			types_selected = ['shopping_mall'];
+			fsCall();
+		}
 	}
 	</script>
 </head>
@@ -136,42 +385,70 @@
 
 	
 
-	<div class="radio">
+	<!--<div class="radio" style="text-align:center;">
 		<label>
-		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(1);">
+		<div class="col-md-5"></div>
+		<div class="col-md-2">
+		<button class="btn btn-primary btn-lg disabled" onclick="rec(1);" style="verticle-align:center;">
 		Go for movie
 		</button>
+		</div>
+		<div class="col-md-5"></div>
 		</label>
 	</div>
 
-	<div class="radio">
+	<div class="radio" style="text-align:center;">
 		<label>
-		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(2);">
-		Some food
+		<div class="col-md-5"></div>
+		<div class="col-md-2">
+		<button class="btn btn-primary btn-lg disabled" onclick="rec(2);" style="verticle-align:center;">
+		Get some food
 		</button>
+		</div>
+		<div class="col-md-5"></div>
 		</label>
 	</div>
 
-	<div class="radio">
+	<div class="radio center" style="text-align:center;">
 		<label>
-		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(3);">
+		<div class="col-md-5"></div>
+		<div class="col-md-2">
+		<button class="btn btn-primary btn-lg disabled" onclick="rec(1);" style="verticle-align:center;">
 		Coffee shop
 		</button>
+		</div>
+		<div class="col-md-5"></div>
 		</label>
 	</div>
 	
-	<div class="radio">
+	<div class="radio" style="text-align:center;">
 		<label>
-		<button type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onclick="rec(4);">
+		<div class="col-md-5"></div>
+		<div class="col-md-2">
+		<button class="btn btn-primary btn-lg disabled" onclick="rec(1);" style="verticle-align:center;">
 		Go for shopping
 		</button>
+		</div>
+		<div class="col-md-5"></div>
 		</label>
 	</div>
 
 	<div id="list">
 		<p>testing...</p>
-	</div>
+	</div>-->
 
+	  <div class="row" style="text-align:center;">
+	    <input type="radio" name="sex" value="male">Male<br>
+		<input type="radio" name="sex" value="female">Female
+	  </div>
+
+	  <div id="map-canvas" class="container"></div>
+	  <script type="text/javascript">
+	  $('#selected_option').click(function(){
+
+	  		var a = document.getElementByName('sex').value;
+	  		console.log(a);	  });
+	  </script>
 	<script src="js/bootstrap.min.js"></script>
 </body>
 </html>
