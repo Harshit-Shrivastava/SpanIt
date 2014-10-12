@@ -281,7 +281,13 @@
 		//console.log(temp);
 		$('#map-canvas').hide(1000);
 		$('#navigate').hide(1000);
-		$('#carbon_print_container').show(1000);
+		$('#graph-container').hide(1000);
+		$('#carbon_print_container').show(1000);	
+	}
+	
+	function plot_graph(){	
+		var b = JSON.parse(localStorage.getItem('carbon_data'));
+		$('#graph-container').show(1000);
 		var xdata = [];
 		var ydata = [];
 		for(var i=1; i<= b.length; i++){
@@ -290,7 +296,7 @@
 		for(var i = 0; i <b.length; i++){
 			ydata.push(b[i].data);
 		}		
-		$('#carbon_print_container').highcharts({
+		$('#graph-container').highcharts({
 			title: {
 				text: 'Carbon Footprint History',
 				x: -20 //center
@@ -317,6 +323,9 @@
 				data: ydata
 			}]
 		});
+		$('#map-canvas').hide(1000);
+		$('#navigate').hide(1000);
+		$('#carbon_print_container').show(1000);
 	}
 
 	google.maps.event.addDomListener(window, 'load', getLocation);
@@ -378,9 +387,9 @@
 				<ul class="dropdown-menu visible-xs visible-sm col-xs-12 col-sm-12">
 					<li><a onclick="compute_carbon_footprint();" href="javascript:;"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+					<li><a onclick="plot_graph();" href="javascript:;"><span class="glyphicon glyphicon-glass"></span> Plot Carbon Footprints</a></li>
 					<li class="divider"></li>
-					<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+					<li><a href="heat_map.html"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
 				</ul>
 			</div>
 		</div>
@@ -392,9 +401,9 @@
 					<ul class="dropdown-menu" role="menu">
 						<li><a onclick="compute_carbon_footprint();" href="javascript:;"><span class="glyphicon glyphicon-cutlery"></span> Compute Carbon Footprint</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-glass"></span> New Places to visit</a></li>
+						<li><a onclick="plot_graph();" href="javascript:;"><span class="glyphicon glyphicon-glass"></span> Plot Carbon Footprints</a></li>
 						<li class="divider"></li>
-						<li><a href="#"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
+						<li><a href="heat_map.html"><span class="glyphicon glyphicon-filter"></span> Frequently visited</a></li>
 					</ul>
 				</li>
 				<li class="dropdown">
